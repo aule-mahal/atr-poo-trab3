@@ -1,63 +1,92 @@
-package pootrab3;
+import java.util.*;
 
-import java.io.*;
+public abstract class Livro
+{
+	protected String titulo, autor, assunto, editora, codigo;
+	protected int ano;
+	protected boolean emprestado;
 
-
-
-public class Livro{
-	
-	public enum Tipo{
-		TEXTO, GERAL
-	}
-	private String titulo;
-	private String autor;
-	private Tipo tipo;
-	private int quant;
-
-	public Livro(String titulo, String autor, String tipo, int quant){
+	public Livro(String codigo, String titulo, String autor, String editora, int ano, String assunto)
+	{	
+		this.codigo = codigo;
 		this.titulo = titulo;
 		this.autor = autor;
-		this.quant = quant;
-
-		if("TEXTO" == tipo.toUpperCase()){
-			this.tipo = Tipo.TEXTO;
-		}
-		else if("GERAL" == tipo.toUpperCase()){
-			this.tipo = Tipo.GERAL;
-		}
+		this.assunto = assunto;
+		this.editora = editora;
+		this.ano = ano;
+		this.emprestado = false;
 	}
 
-	public String getTitle(){
-		return this.titulo;
+	//Sets
+	public void setTitulo(String titulo)
+	{
+		this.titulo = titulo;	
 	}
-
-	public String getAuthor(){
-		return this.autor;
+	public void setAutor(String autor)
+	{
+		this.autor = autor;	
 	}
-
-	public int getQuant(){
-		return this.quant;
+	public void setAssunto(String assunto)
+	{
+		this.assunto = assunto;	
 	}
-
-	public String getTipo(){
-		switch(this.tipo){
-			case TEXTO:
-				String tx = "TEXTO";
-				return tx;
-				
-			case GERAL:
-				String ge = "GERAL";
-				return ge;
-				
-			default:
-				String ti = "TIPO INVALIDO";
-				return ti;
-				
-		}
+	public void setEditora(String editora)
+	{
+		this.editora = editora;	
+	}
+	public void setAno(int  ano)
+	{	
+		this.ano = ano;	
+	}
+	public void setEmprestado(boolean condicao)
+	{	
+		this.emprestado = condicao;	
 	}
 	
+	//gets
+	public String getTitulo()
+	{
+		return this.titulo;	
+	}
+	public String getAutor()
+	{
+		return this.autor;	
+	}
+	public String getAssunto()
+	{
+		return this.assunto;	
+	}
+	public String getEditora()
+	{
+		return this.editora;	
+	}
+	public int getAno()
+	{	
+		return this.ano;	
+	}
+	public String getCodigo()
+	{	
+		return this.codigo;
+	}
+	public boolean getEmprestado()
+	{	
+		return this.emprestado;
+	}
 
-	
+}
 
+class LivroTexto extends Livro  //livro texto
+{
+	public LivroTexto(String codigo, String titulo, String autor, String editora, int ano,String assunto)
+	{
+		super(codigo, titulo, autor,editora,ano,assunto);
+	}
+}
 
+class LivroGeral extends Livro  //livro geral
+{
+	public LivroGeral(String codigo, String titulo, String autor, String editora, int ano, String assunto)
+	{
+		super(codigo, titulo, autor, editora, ano, assunto);
+	}
 }
