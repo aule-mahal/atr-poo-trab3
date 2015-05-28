@@ -3,10 +3,10 @@ limpa:
 	clear
 comp:
 	javac BookUnavailableException.java
-	javac Biblioteca.java
+	javac TelaBiblioteca.java
 	javac Livro.java
 	javac Sistema.java
 	javac Emprestimo.java
 	javac Usuario.java
 exec:
-	java Biblioteca
+	java TelaBiblioteca
