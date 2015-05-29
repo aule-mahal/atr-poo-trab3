@@ -71,7 +71,11 @@ public class TelaBiblioteca extends Application
 	public void start(Stage stage) throws Exception
 	{
 		GregorianCalendar now = new GregorianCalendar();
+		System.out.println("NOW " + now.getTime());
 		Sistema sist = new Sistema(now.getTime());
+
+
+
 		sist.carregaArquivoUsuarios();
 		sist.carregaArquivoLivros();
 		sist.carregaEmprestados();
@@ -98,10 +102,13 @@ public class TelaBiblioteca extends Application
     	 	}  
 		}));  */
 
+		//GregorianCalendar tempo;
 		final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), 
 			(event) ->  
      		{  
+
 	          	final GregorianCalendar cal = new GregorianCalendar();
+	          	//sist.setDataDoSistema(cal.getTime());
 	          	stage.setTitle("DEDALUS 2.0   [" + cal.getTime().toString()+"]");
 	          	stage.setWidth(650);
 				stage.setHeight(550);
@@ -335,6 +342,14 @@ public class TelaBiblioteca extends Application
 
 	private void configuraAbaBuscar(Sistema sist)
 	{
+
+		/*
+			BUSCA POR CODIGO -- RETORNA DIALOG BOX COM ACESSO COMPLETO (EDICAO E DELECAO) DE USUARIO/LIVRO
+			BUSCA POR NOME/AUTOR/TITULO -- RETORNA LISTA DE 
+		
+		*/
+
+
 		ToggleGroup groupUser = new ToggleGroup();
 		RadioButton rbUserCode = new RadioButton("Buscar por Código");
 		rbUserCode.setSelected(true);
@@ -390,33 +405,34 @@ public class TelaBiblioteca extends Application
 		});
 
 		//BUSCA LIVRO
-
+		/*
 		HBox linha5 = new HBox();
 		linha5.getChildren().add(new Label("\n\t\t\t==== LIVRO ===="));
 
+
+		ToggleGroup groupLivro = new ToggleGroup();
+		RadioButton rbBookCode = new RadioButton("Buscar por Código");
+		rbBookCode.setSelected(true);
+		rbBookCode.setToggleGroup(groupLivro);
+
+		RadioButton rbBookTitle = new RadioButton("Buscar por Titulo");
+		rbUserName.setToggleGroup(groupUser);
+
 		HBox linha6 = new HBox();
 		linha6.setSpacing(10);
-		linha6.getChildren().add(new Label("\tCódigo do Livro:"));
 
-		TextField putCodeBook = new TextField();
-		linha6.getChildren().add(putCodeBook);
+		
 
 		HBox linha7 = new HBox();
 		linha7.setSpacing(10);
-		linha7.getChildren().add(new Label("\tTítulo do Livro:  "));
+		linha7.getChildren().add(new Label("\tDado de Busca:  "));
 
 		TextField putTitleBook = new TextField();
 		linha7.getChildren().add(putTitleBook);
 
-		HBox linha8 = new HBox();
-		linha8.setSpacing(10);
-		linha8.getChildren().add(new Label("\tNome do Autor: "));
-
-		TextField putAuthorName = new TextField();
-		linha8.getChildren().add(putAuthorName);
 
 		Button btBuscarLivro = new Button("Buscar Livro");
-		HBox linha9 = new HBox();
+		HBox linha8 = new HBox();
 		linha9.setSpacing(175);
 		linha9.getChildren().add(new Label(""));
 		linha9.getChildren().add(btBuscarLivro);
@@ -429,6 +445,7 @@ public class TelaBiblioteca extends Application
 				Abrir Resultado em Dialog Box
 			*/
 				
+				/*
 			if(putCodeBook.getText().contentEquals("") && putTitleBook.getText().contentEquals("") && putAuthorName.getText().contentEquals("")){
 				System.out.println("CAMPOS VAZIOS");
 			}
@@ -444,18 +461,19 @@ public class TelaBiblioteca extends Application
 				}
 			}
 		
-			
+			*/
+			/*
 			putCodeBook.clear();
 			putTitleBook.clear();
 			putAuthorName.clear();
 		});
-
+		*/
 
 		VBox v3 = new VBox();
 		v3.setSpacing(20);
 		v3.setAlignment(Pos.TOP_CENTER);
-		v3.getChildren().addAll(linha1, linha2, linha3, linha4, linha5, linha6, linha7, linha8, linha9);
-		
+		//v3.getChildren().addAll(linha1, linha2, linha3, linha4, linha5, linha6, linha7, linha8, linha9);
+		v3.getChildren().addAll(linha1, linha2, linha3, linha4);
 		abaBuscar.setContent(v3);
 		abaBuscar.setClosable(false);
 	}
@@ -486,6 +504,8 @@ public class TelaBiblioteca extends Application
 
 		btListar.setOnAction((event) -> 
 		{
+
+			//System.out.println(sist.getData().getTime().toString());
 			
 			if(rbListarUser.isSelected()) //testa se selecionou user pra listar
 			{	
@@ -566,6 +586,7 @@ public class TelaBiblioteca extends Application
 			}
 			else{
 				try{
+					System.out.println("DATA SISTEMA EMPRESTA "+sist.getData().toString());
 					sist.realizarEmprestimo(putCodeUser.getText(), putCodeBook.getText(), sist.getData());
 					sist.salvaArquivoEmprestimos();
 					sist.atualizaSistema();

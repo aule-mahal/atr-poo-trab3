@@ -7,6 +7,7 @@ public class Emprestimo
 	private String codigoDoLivro;
 	private String nomeLivro;
 	private GregorianCalendar dataDevolucao;
+	private GregorianCalendar dataEmprestimo;
 	private boolean atrasado;
 
 	public Emprestimo(Usuario user, Livro book, GregorianCalendar dataAtual)
@@ -15,6 +16,7 @@ public class Emprestimo
 		this.codigoDoLivro = book.getCodigo();
 		this.nomeUsuario = user.getNome();
 		this.nomeLivro = book.getTitulo();
+		this.dataEmprestimo = dataAtual;
 		this.dataDevolucao = user.getDataDevolucao(dataAtual);
 		this.atrasado = false;
 	}
@@ -45,10 +47,18 @@ public class Emprestimo
 	{
 		return this.nomeLivro;
 	}
+	public GregorianCalendar getDataEmprestimo(){
+		return this.dataEmprestimo;
+	}
 	public GregorianCalendar getDataDevolucao()
 	{
 		return this.dataDevolucao;
 	}
+
+	public void setDataDevolucao(){
+
+	}
+
 	public boolean getAtrasado()
 	{
 		return this.atrasado;
