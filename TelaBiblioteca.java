@@ -613,11 +613,11 @@ public class TelaBiblioteca extends Application
 
 				Alert dialogoOk;
 				try{
-<<<<<<< HEAD
-					System.out.println("DATA SISTEMA EMPRESTA "+sist.getData().toString());
-=======
+//<<<<<<< HEAD
+					System.out.println("DATA SISTEMA EMPRESTA "+sist.getData().getTime().toString());
+//=======
 
->>>>>>> Janelas
+//>>>>>>> Janelas
 					sist.realizarEmprestimo(putCodeUser.getText(), putCodeBook.getText(), sist.getData());
 					sist.salvaArquivoEmprestimos();
 					sist.atualizaSistema();

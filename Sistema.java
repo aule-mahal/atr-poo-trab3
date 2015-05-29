@@ -34,7 +34,7 @@ public class Sistema
 
 	public GregorianCalendar getData() //pega a data so sistema
 	{
-		System.out.println("Hora: "+ dataAtual);
+		System.out.println("Hora: "+ dataAtual.getTime().toString());
 		return this.dataAtual;
 	}
 
