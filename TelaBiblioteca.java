@@ -172,6 +172,8 @@ public class TelaBiblioteca extends Application
 		Button btCadastrarUsuario = new Button("Cadastrar");
 		linha4.getChildren().addAll(putCode, btCadastrarUsuario);
 
+		Button btnErro = new Button("Mostrar diálogo de error");
+
 		btCadastrarUsuario.setOnAction( (event) ->
 		{
 			/*Escrever aqui codigo correspondente e apagar o print
@@ -186,43 +188,61 @@ public class TelaBiblioteca extends Application
 				//Trocar por alert box
 			}
 			else{
+				Alert dialogoOk;
 				if(rbAluno.isSelected()){
+					
 					try{
 						sist.addUsuario(new Aluno(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk.setContentText("Aluno cadastrado com sucesso!");
+										
+
 						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
 					}
 					catch(Exception ex){
 						//TROCAR POR ALERT BOX
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText("Aluno já existente!");
 						System.out.println("Erro: " + ex.getMessage());
 					}
+					dialogoOk.showAndWait();
 				}
 				else if(rbProfessor.isSelected()){
 					try{
 						sist.addUsuario(new Professor(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk.setContentText("Professor cadastrado com sucesso!");
 					}
 					catch(Exception ex){
-						//TROCAR POR ALERT BOX
+						
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText("Professor já existente!");
 						System.out.println("Erro: " + ex.getMessage());
 					}
+					dialogoOk.showAndWait();
 				}
 				else if(rbComunidade.isSelected()){
 					try{
 						sist.addUsuario(new Comunidade(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk.setContentText("Pessoa da Comunidade cadastrada com sucesso!");
 					}
 					catch(Exception ex){
 						//TROCAR POR ALERT BOX
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText("Pessoa da Comunidade já existente!");
 						System.out.println("Erro: " + ex.getMessage());
 					}
+					dialogoOk.showAndWait();
 				}
 			}
 			putNome.clear();
 			putCode.clear();
 			putEnd.clear();
+
 			System.out.println("Cadastrar usuario!!");
 		}
 		);
@@ -529,7 +549,7 @@ public class TelaBiblioteca extends Application
 				lliv = sist.listarLivros();
 				lliv.stream()
 					.forEach(x ->{
-						texto.appendText(" "+x);
+						texto.appendText(" "  +x);
 					});
 			}
 			else if (rbListarEmprest.isSelected()) //testa se selecionou book pra listar
@@ -584,23 +604,37 @@ public class TelaBiblioteca extends Application
 		linha4.getChildren().add(btEmprestar);
 		
 		btEmprestar.setOnAction((event) -> 
-		{
+		{	
 			
 			if(putCodeBook.getText().contentEquals("") || putCodeUser.getText().contentEquals("")){
 				System.out.println("CAMPO VAZIO");
 			}
 			else{
+
+				Alert dialogoOk;
 				try{
+<<<<<<< HEAD
 					System.out.println("DATA SISTEMA EMPRESTA "+sist.getData().toString());
+=======
+
+>>>>>>> Janelas
 					sist.realizarEmprestimo(putCodeUser.getText(), putCodeBook.getText(), sist.getData());
 					sist.salvaArquivoEmprestimos();
 					sist.atualizaSistema();
-					System.out.println("EMPRESTIMO BEM SUCEDIDO!");
+					dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+					dialogoOk.setContentText("Cadastro feito com sucesso!");
+										
 				}
 				catch(Exception ex){
+
+					dialogoOk = new Alert(Alert.AlertType.ERROR);
+					dialogoOk.setContentText("Livro já emprestado!");					
 					System.out.println("ERRO: " + ex.getMessage());
 				}
+
+				dialogoOk.showAndWait();
 			}
+
 			putCodeBook.clear();
 			putCodeUser.clear();
 		});
@@ -625,16 +659,26 @@ public class TelaBiblioteca extends Application
 				System.out.println("CAMPO VAZIO");
 			}
 			else{
+
+				Alert dialogoOk;
 				try{
 					sist.registrarDevolucao(putCodeBookDevolv.getText());
 					sist.atualizaSistema();
 					sist.salvaArquivoEmprestimos();
 					sist.salvaArquivoUsuarios();
 					sist.salvaArquivoLivros();
+					dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+					dialogoOk.setContentText("Livro devolvido com sucesso!");
+					
 				}
 				catch(Exception ex){
+					
+					dialogoOk = new Alert(Alert.AlertType.WARNING);
+					dialogoOk.setContentText("Esse livro não existe ou não foi emprestado!");
+					dialogoOk.showAndWait();
 					System.out.println("Erro: "+ex.getMessage());
 				}
+				dialogoOk.showAndWait();
 			}
 
 			putCodeBookDevolv.clear();
