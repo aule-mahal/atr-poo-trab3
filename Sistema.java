@@ -20,6 +20,7 @@ public class Sistema
 	{
 		this.dataAtual = new GregorianCalendar();
 		this.dataAtual.setTime(data);
+		//System.out.println("Data Atual "+this.dataAtual.getTime());
 		todosLivros = new ArrayList<Livro>();
 		todosUsuarios = new ArrayList<Usuario>();
 		emprestimosAtivos = new ArrayList<Emprestimo>();
@@ -121,6 +122,7 @@ public class Sistema
 	public void realizarEmprestimo(String codigoUsuario, String codigoLivro, GregorianCalendar dataEmprestimo) throws UserBlockedException, NoSuchElementException, 
 																	UserHasMaxNumberOfBookException, BookUnavailableException
 	{
+		//System.out.println("Data Emprestimo "+dataEmprestimo.getTime());
 		this.verificacao(codigoUsuario, codigoLivro, dataEmprestimo);
 	}
 
@@ -418,7 +420,7 @@ public class Sistema
   	 			
   	 			Emprestimo emps = (Emprestimo)usuit.next();
   	 			GregorianCalendar dev;
-  	 			dev = emps.getDataDevolucao();
+  	 			dev = emps.getDataEmprestimo();
   	 			
   	 			String content = new String(emps.getCodigoDoUsuario()+s+emps.getCodigoDoLivro()+s+
   	 					dev.get(Calendar.DAY_OF_MONTH)+s+
@@ -451,17 +453,17 @@ public class Sistema
   	 			Usuario us = (Usuario)usuit.next();
   	 			
   	 			if(us instanceof Aluno){
-  	 				String content = new String("aluno"+sep+us.getNome()+sep+us.getEndereco()+sep+us.getCodigo()+"\n");
+  	 				String content = new String("aluno"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}
   	 			else if(us instanceof Professor){
-  	 				String content = new String("professor"+sep+us.getNome()+sep+us.getEndereco()+sep+us.getCodigo()+"\n");
+  	 				String content = new String("professor"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}
   	 			else if (us instanceof Comunidade){
-  	 				String content = new String("comunidade"+sep+us.getNome()+sep+us.getEndereco()+sep+us.getCodigo()+"\n");
+  	 				String content = new String("comunidade"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}

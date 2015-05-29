@@ -20,8 +20,12 @@ import javafx.event.*;
 
 /*
 	TODO:
+
+		##>>>> ALTERAR SEPARADORES DE TODOS OS ARQUIVOS PARA VIRGULA <<<<##
+
 		LISTAR USUARIO, LIVRO, EMPRESTIMOS -- OK
 		---->> Arrumar formatação da listagem de livros
+	
 
 		CADASTROS
 		-->> CADASTRO USUARIO -- OK
@@ -31,7 +35,7 @@ import javafx.event.*;
 		EFETUAR EMPRESTIMO -- OK
 		EFETUAR DEVOLUCAO  -- OK
 		
-		BUSCAS
+		BUSCAS ????
 		-------->> Busca Usuario
 		----->> Busca por codigo
 		----->> Busca por nome
@@ -234,6 +238,7 @@ public class TelaBiblioteca extends Application
 
 		HBox linha5 = new HBox();
 		linha5.setSpacing(10);
+
 		VBox vv = new VBox();
 		vv.setSpacing(15);
 		linha5.getChildren().add(new Label("   \tTipo de livro:"));
