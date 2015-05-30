@@ -5,6 +5,8 @@ import java.io.*;
 /**
 *CHANGELOG:
 *	METODOS listarUsuarios();listarLivros();listarEmprestimos() agora retornam array de strings
+*	CRIADO LISTA emprestimosInativos
+*   CRIADO METODOS addEmprestimoInativo, SalvaArquivoEmprestimoInativo, CarregaEmprestimoInativo
 **/
 
 public class Sistema
@@ -13,6 +15,7 @@ public class Sistema
 	private List<Usuario> todosUsuarios;
 	private List<Livro> todosLivros;
 	private List<Emprestimo> emprestimosAtivos;
+	private List<Emprestimo> emprestimosInativos;
 	private int totalEmprestimosAtivos;
 
 	//construtor, recebendo a data a ser usada:
@@ -24,6 +27,7 @@ public class Sistema
 		todosLivros = new ArrayList<Livro>();
 		todosUsuarios = new ArrayList<Usuario>();
 		emprestimosAtivos = new ArrayList<Emprestimo>();
+		emprestimosInativos = new ArrayList<Emprestimo>();
 		this.totalEmprestimosAtivos = 0;
 	}
 
@@ -60,6 +64,30 @@ public class Sistema
 		Usuario u = optional.get();
 		System.out.println("Removido: " + u.getCodigo());
 		todosUsuarios.remove(u);
+	}
+
+	//PARECE OK
+	public void addEmprestimoInativo(String codigoUsuario, String codigoLivro, GregorianCalendar dataEmprestimo,
+		GregorianCalendar dataDevolucao, Boolean atraso){
+
+		Optional<Usuario> optusu = this.todosUsuarios
+			.stream()
+			.filter( x -> x.getCodigo().equals(codigoUsuario))
+			.findAny();
+		Usuario u = optusu.get();
+
+		Optional<Livro> optliv = this.todosLivros
+			.stream()
+			.filter( x -> x.getCodigo().equals(codigoLivro))
+			.findAny();
+		Livro l = optliv.get();
+
+		Emprestimo inat = new Emprestimo(u, l, dataEmprestimo);
+		inat.setAtrasado(dataDevolucao);
+		inat.setDataDevolucao(dataDevolucao);
+
+		this.emprestimosInativos.add(inat);
+
 	}
 
 	public List<String> listarUsuarios()
@@ -190,6 +218,10 @@ public class Sistema
 			return lemp;
 	}
 
+	public List<Emprestimo> getEmrestimosInativos(){
+		return this.emprestimosInativos;
+	}
+
 	public void registrarDevolucao(String codigoLivro) throws NoSuchElementException
 	{
 		Optional<Emprestimo> opt = this.emprestimosAtivos
@@ -198,7 +230,15 @@ public class Sistema
 			.findAny();
 
 		Emprestimo emprest = opt.get(); //pode lancar excecao
+		this.emprestimosInativos.add(emprest);
 		this.removeEmprestimo(emprest);
+
+		/*
+		Devolucao devolv = new Devolucao(emprest.getCodigoDoLivro(), emprest.getCodigoDoUsuario(), this.dataAtual);
+		devolv.setAtrasado(emprest.getAtrasado());
+		this.historicoDevolucoes.add(devolv);
+		*/
+
 	}
 
 	public void removeEmprestimo(Emprestimo emprest)
@@ -408,6 +448,78 @@ public class Sistema
 		}
 	}
 
+
+	//FALTA TESTAR
+	public void carregaEmprestimosInativos() 
+  	{
+ 
+		String arquivocsv = "Arquivos/Dados_livros_emprestados_inativos.csv";
+		BufferedReader br = null;
+		String linha = "";
+		String separatorcsv = ",";
+ 
+		try
+		{ 
+			br = new BufferedReader(new FileReader(arquivocsv));
+			while ((linha = br.readLine()) != null)
+			{	
+
+        		String[] dadosLeitura = linha.split(separatorcsv); // use comma as separator
+        		/*
+					public void addEmprestimoInativo(String codigoUsuario, String codigoLivro, GregorianCalendar dataEmprestimo
+		GregorianCalendar dataDevolucao, Boolean atraso){
+        		*/
+        		//RECARREGAR EMPRESTIMOS INATIVOS
+        		//COD_USUARIO,COD_LIVRO,DIA_EMP,MES_EMP,ANO_EMP,DIA_DEV,MES_DEV,ANO_DEV,ATRASADO
+
+				Boolean atr;
+				if(dadosLeitura[8].equals("1")){
+					atr = true;
+				}
+				else{
+					atr = false;
+				}
+
+        		this.addEmprestimoInativo(dadosLeitura[0], dadosLeitura[1],new GregorianCalendar(
+        			Integer.parseInt(dadosLeitura[2]),
+        			Integer.parseInt(dadosLeitura[3]),
+        			Integer.parseInt(dadosLeitura[4])),
+        			new GregorianCalendar(
+        			Integer.parseInt(dadosLeitura[5]),
+        			Integer.parseInt(dadosLeitura[6]),
+        			Integer.parseInt(dadosLeitura[7])),
+        			atr);
+
+        		/*
+        		this.realizarEmprestimo(dadosLivrosEmprestados[0], dadosLivrosEmprestados[1], new GregorianCalendar(
+        								Integer.parseInt(dadosLivrosEmprestados[4]), 
+        								Integer.parseInt(dadosLivrosEmprestados[3]),
+        								Integer.parseInt(dadosLivrosEmprestados[2]))
+        								);
+        		*/
+			}
+ 
+		}
+		catch(Exception e)
+		{
+			System.out.println("Erro: "+ e.getMessage());
+		}
+		finally
+		{
+			if (br != null)
+			{
+				try
+				{
+					br.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 //OK
 	public void salvaArquivoEmprestimos()
   	{
@@ -427,6 +539,50 @@ public class Sistema
   	 					dev.get(Calendar.DAY_OF_MONTH)+s+
   	 					dev.get(Calendar.MONTH)+s+
   	 					dev.get(Calendar.YEAR)+"\n");
+  	 			byte[] bud = content.getBytes();
+  	 			os.write(bud);
+  	 			
+  	 			
+  	 		}
+  	 		os.close();
+  	 	}
+  	 	catch(Exception ex){
+  	 		System.out.println("Erro: "+ ex.getMessage());
+  	 	}
+  		
+  	}
+
+  	//Salva os Emprestimos Inativos
+  	public void salvaArquivoEmprestimosInativos()
+  	{
+  		String arquivocsv = "Arquivos/Dados_livros_emprestados_inativos.csv";
+  		String s = ",";
+  		File f = new File(arquivocsv);
+  	 	try{
+  	 		OutputStream os = new FileOutputStream(f);
+  	 		Iterator<Emprestimo> usuit = emprestimosInativos.iterator();
+  	 		while(usuit.hasNext()){
+  	 			
+  	 			Emprestimo emps = (Emprestimo)usuit.next();
+  	 			GregorianCalendar datadev;
+  	 			GregorianCalendar dataemp;
+  	 			dataemp = emps.getDataEmprestimo();
+  	 			datadev = emps.getDataDevolucao();
+
+  	 			int atr = 0;
+  	 			if(emps.getAtrasado()){
+  	 				atr = 1;
+  	 			}
+  	 			//FORMATO DE LEITURA EMPRESTIMO INATIVO
+  	 			//COD_USUARIO,COD_LIVRO,DIA_EMP,MES_EMP,ANO_EMP,DIA_DEV,MES_DEV,ANO_DEV,ATRASADO
+  	 			String content = new String(emps.getCodigoDoUsuario()+s+emps.getCodigoDoLivro()+s+
+  	 					dataemp.get(Calendar.DAY_OF_MONTH)+s+
+  	 					dataemp.get(Calendar.MONTH)+s+
+  	 					dataemp.get(Calendar.YEAR)+s+
+  	 					datadev.get(Calendar.DAY_OF_MONTH)+s+
+  	 					datadev.get(Calendar.MONTH)+s+
+  	 					datadev.get(Calendar.YEAR)+s+
+  	 					atr+"\n");
   	 			byte[] bud = content.getBytes();
   	 			os.write(bud);
   	 			

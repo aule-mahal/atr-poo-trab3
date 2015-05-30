@@ -55,8 +55,8 @@ public class Emprestimo
 		return this.dataDevolucao;
 	}
 
-	public void setDataDevolucao(){
-
+	public void setDataDevolucao(GregorianCalendar dataDevolucao){
+		this.dataDevolucao = dataDevolucao;
 	}
 
 	public boolean getAtrasado()
