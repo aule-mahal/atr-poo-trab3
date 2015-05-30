@@ -84,19 +84,6 @@ public class TelaBiblioteca extends Application
 		painelAbas.getTabs().addAll(abaCadastro, abaEmpreDevo, abaBuscar, abaListar);
 		stage.setScene(new Scene(painelAbas));
 
-		/*final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() 
-		{  
-     		public void handle(ActionEvent event) 
-     		{  
-	          	final GregorianCalendar cal = new GregorianCalendar();  
-	          	clock.setText(cal.getTime().toString());
-	          	System.out.println(cal.getTime().toString());
-	          	stage.setTitle("DEDALUS 2.0  -  Hora do Sistema: <" + cal.getTime().toString()+">");
-	          	stage.setWidth(650);
-				stage.setHeight(550);
-	          	stage.show();
-    	 	}  
-		}));  */
 
 		final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), 
 			(event) ->  
@@ -110,10 +97,7 @@ public class TelaBiblioteca extends Application
 
 		timeline.setCycleCount(Animation.INDEFINITE);  
 		timeline.play();  
-		
-		//stage.setWidth(650);
-		//stage.setHeight(550);
-		//stage.show();
+				
 	}
 
 
@@ -185,12 +169,10 @@ public class TelaBiblioteca extends Application
 						sist.salvaArquivoUsuarios();
 						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
 						dialogoOk.setContentText("Aluno cadastrado com sucesso!");
-										
-
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
+						
 					}
 					catch(Exception ex){
-						//TROCAR POR ALERT BOX
+						
 						dialogoOk = new Alert(Alert.AlertType.ERROR);
 						dialogoOk.setContentText("Aluno já existente!");
 						System.out.println("Erro: " + ex.getMessage());
@@ -201,7 +183,7 @@ public class TelaBiblioteca extends Application
 					try{
 						sist.addUsuario(new Professor(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
-						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);						
 						dialogoOk.setContentText("Professor cadastrado com sucesso!");
 					}
 					catch(Exception ex){
@@ -387,18 +369,39 @@ public class TelaBiblioteca extends Application
 		
 		btBuscarUsuario.setOnAction((event) -> 
 		{
-			System.out.println("BUSCANDO USUARIO");
+			
 			if(putSearchUser.getText().contentEquals("")){
 				System.out.println("CAMPO VAZIO");
+
 			}
 			else{
-				if(rbUserCode.isSelected()){ //Busca por codigo
-								System.out.println("BUSCANDO POR CODIGO");
 
+				if(rbUserCode.isSelected())
+				{ //Busca por codigo
+
+					//text.clear();
+					List<String> codigoBuscado = new ArrayList<String>();
+					codigoBuscado = sist.buscaUsuarioCodigo(putSearchUser.getText());
+					codigoBuscado.stream()
+
+					.forEach(x ->
+					{	
+						System.out.println("Usuario: " + x);
+						//texto.appendText(" "+x);
+					});
 				}
-				else{	//Busca por nome
-								System.out.println("BUSCANDO POR NOME");
+				else
+				{	//Busca por nome
+					
+					List<String> usuarioBuscado = new ArrayList<String>();
+					usuarioBuscado = sist.buscaUsuarioNome(putSearchUser.getText());
+					usuarioBuscado.stream()
 
+					.forEach(x ->
+					{	
+						System.out.println("Usuario: " + x);
+						//texto.appendText(" "+x);
+					});
 				}	
 			}
 
@@ -541,7 +544,6 @@ public class TelaBiblioteca extends Application
 			
 		});
 
-		
 		VBox vertical = new VBox();
 		vertical.setSpacing(20);
 		vertical.setAlignment(Pos.TOP_CENTER);
@@ -550,7 +552,6 @@ public class TelaBiblioteca extends Application
 		abaListar.setContent(vertical);
 		abaListar.setClosable(false);
 	
-
 	}
 
 	private void configuraAbaEmpreDevo(Sistema sist)

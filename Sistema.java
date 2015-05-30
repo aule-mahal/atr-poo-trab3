@@ -33,7 +33,6 @@ public class Sistema
 
 	public GregorianCalendar getData() //pega a data so sistema
 	{
-		System.out.println("Hora: "+ dataAtual);
 		return this.dataAtual;
 	}
 
@@ -318,7 +317,6 @@ public class Sistema
   	}
 
   	
-
 	public void carregaArquivoLivros() 
  	{
 		String arquivocsv = "Arquivos/Dados_livros.csv";
@@ -517,24 +515,39 @@ public class Sistema
   	}
 
 
-	public Usuario buscaUsuarioCodigo(String code){
-		Optional<Usuario> optional = this.todosUsuarios
+	public List<String> buscaUsuarioCodigo(String code){
+		
+		List<String>  codigoBuscados = new ArrayList<String>();
+		this.todosUsuarios
 			.stream()
-			.filter( x -> x.getCodigo().equals(code))
-			.findAny();
-		Usuario u = optional.get();
-		return u;
+			.filter(x-> x.getCodigo().equals(code))
+			.forEach(x->
+			{	
+				codigoBuscados.add("Nome: " + x.getNome());
+				codigoBuscados.add("Endereco: " + x.getEndereco());
+				codigoBuscados.add("Codigo: " + x.getCodigo() + "\n\n");
+
+			});
+			return codigoBuscados;
 	}
-	public Usuario buscaUsuarioNome(String name){
-		Optional<Usuario> optional = this.todosUsuarios
+	public List<String> buscaUsuarioNome(String name){
+
+		List<String>  usuarioBuscados = new ArrayList<String>();
+		this.todosUsuarios
 			.stream()
-			.filter( x -> x.getNome().equals(name))
-			.findAny();
-		Usuario u = optional.get();
-		return u;
-	}
+			.filter(x-> x.getNome().equals(name))
+			.forEach(x->
+			{	
+				usuarioBuscados.add("Nome: " + x.getNome());
+				usuarioBuscados.add("Endereco: " + x.getEndereco());
+				usuarioBuscados.add("Codigo: " + x.getCodigo() + "\n\n");
+
+			});
+			return usuarioBuscados;
+		}
 
 	public Livro buscaLivroCodigo(String code){
+
 		Optional<Livro> optional = this.todosLivros
 			.stream()
 			.filter( x -> x.getCodigo().equals(code))
