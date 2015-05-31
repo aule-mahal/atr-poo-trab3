@@ -383,7 +383,6 @@ public class TelaBiblioteca extends Application
 					List<String> codigoBuscado = new ArrayList<String>();
 					codigoBuscado = sist.buscaUsuarioCodigo(putSearchUser.getText());
 					codigoBuscado.stream()
-
 					.forEach(x ->
 					{	
 						System.out.println("Usuario: " + x);
@@ -396,7 +395,6 @@ public class TelaBiblioteca extends Application
 					List<String> usuarioBuscado = new ArrayList<String>();
 					usuarioBuscado = sist.buscaUsuarioNome(putSearchUser.getText());
 					usuarioBuscado.stream()
-
 					.forEach(x ->
 					{	
 						System.out.println("Usuario: " + x);
@@ -452,17 +450,47 @@ public class TelaBiblioteca extends Application
 				Abrir Resultado em Dialog Box
 			*/
 				
-			if(putCodeBook.getText().contentEquals("") && putTitleBook.getText().contentEquals("") && putAuthorName.getText().contentEquals("")){
+			if(putCodeBook.getText().contentEquals("") && putTitleBook.getText().contentEquals("") && putAuthorName.getText().contentEquals(""))
+			{
 				System.out.println("CAMPOS VAZIOS");
 			}
-			else{
-				if(!putCodeBook.getText().contentEquals("")){ //Busca Por Codigo
+			else
+			{	
+				List<String> livrosBuscado;
 
-				}
-				else if(!putTitleBook.getText().contentEquals("")){ //Busca por titulo
+				if(!putCodeBook.getText().contentEquals(""))
+				{ 
+					livrosBuscado = new ArrayList<String>();
+					livrosBuscado = sist.buscaLivroCodigo(putCodeBook.getText());
+					livrosBuscado.stream()
+					.forEach(x ->
+					{
 
+						System.out.println(" " + x);
+					});
 				}
-				else{	//Busca por autor
+				else if(!putTitleBook.getText().contentEquals(""))
+				{ //Busca por titulo
+					livrosBuscado = new ArrayList<String>();
+					livrosBuscado = sist.buscaLivroTitulo(putTitleBook.getText());
+					livrosBuscado.stream()
+					.forEach(x ->
+					{
+
+						System.out.println(" " + x);
+					});
+				}
+				else
+				{	
+
+					livrosBuscado = new ArrayList<String>();
+					livrosBuscado = sist.buscaLivroAutor(putAuthorName.getText());
+					livrosBuscado.stream()
+					.forEach(x ->
+					{
+
+						System.out.println(" " + x);
+					});
 
 				}
 			}

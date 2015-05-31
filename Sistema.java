@@ -514,48 +514,101 @@ public class Sistema
   		
   	}
 
-
-	public List<String> buscaUsuarioCodigo(String code){
-		
-		List<String>  codigoBuscados = new ArrayList<String>();
+	public List<String> buscaUsuarioCodigo(String code)
+	{
+	
+		List<String> codigoBuscados = new ArrayList<String>();
 		this.todosUsuarios
 			.stream()
 			.filter(x-> x.getCodigo().equals(code))
 			.forEach(x->
-			{	
+			{
 				codigoBuscados.add("Nome: " + x.getNome());
 				codigoBuscados.add("Endereco: " + x.getEndereco());
 				codigoBuscados.add("Codigo: " + x.getCodigo() + "\n\n");
-
 			});
-			return codigoBuscados;
+		return codigoBuscados;
 	}
-	public List<String> buscaUsuarioNome(String name){
 
-		List<String>  usuarioBuscados = new ArrayList<String>();
+	public List<String> buscaUsuarioNome(String name)
+	{
+
+		List<String> usuarioBuscados = new ArrayList<String>();
 		this.todosUsuarios
 			.stream()
 			.filter(x-> x.getNome().equals(name))
 			.forEach(x->
-			{	
+			{
 				usuarioBuscados.add("Nome: " + x.getNome());
 				usuarioBuscados.add("Endereco: " + x.getEndereco());
 				usuarioBuscados.add("Codigo: " + x.getCodigo() + "\n\n");
-
 			});
-			return usuarioBuscados;
-		}
 
-	public Livro buscaLivroCodigo(String code){
+		return usuarioBuscados;
+}
 
-		Optional<Livro> optional = this.todosLivros
+	public List<String> buscaLivroCodigo(String code){
+
+		List<String> livrosBuscados = new ArrayList<String>();
+		this.todosLivros
 			.stream()
-			.filter( x -> x.getCodigo().equals(code))
-			.findAny();
-		Livro l = optional.get();
-		return l;
+			.filter(x -> x.getCodigo().equals(code))
+			.forEach(x->
+			{
+				livrosBuscados.add("Titulo : " + x.getTitulo());
+				livrosBuscados.add("Autor : " + x.getAutor());
+				livrosBuscados.add("Editora : " + x.getEditora());
+				livrosBuscados.add("Ano: " + x.getAno());
+				livrosBuscados.add("Assunto: " + x.getAssunto());				
+				livrosBuscados.add("Codigo: " + x.getCodigo()+ "\n\n");				
+			});
+		return livrosBuscados;
+	
+
+
 	}
-	public Livro buscaLivroTitulo(String title){
+
+	public List<String> buscaLivroTitulo(String title)
+	{
+		List<String> tituloBuscados = new ArrayList<String>();
+		this.todosLivros
+			.stream()
+			.filter(x -> x.getTitulo().equals(title))
+			.forEach(x ->
+			{
+				tituloBuscados.add("Titulo : " + x.getTitulo());
+				tituloBuscados.add("Autor : " + x.getAutor());
+				tituloBuscados.add("Editora : " + x.getEditora());
+				tituloBuscados.add("Ano: " + x.getAno());
+				tituloBuscados.add("Assunto: " + x.getAssunto());				
+				tituloBuscados.add("Codigo: " + x.getCodigo()+ "\n\n");				
+			});
+
+		return tituloBuscados;
+	}
+	public List<String> buscaLivroAutor(String author)
+	{
+		List<String> autorBuscados = new ArrayList<String>();
+		this.todosLivros
+			.stream()
+			.filter(x -> x.getAutor().equals(author))
+			.forEach(x ->
+			{
+				autorBuscados.add("Titulo : " + x.getTitulo());
+				autorBuscados.add("Autor : " + x.getAutor());
+				autorBuscados.add("Editora : " + x.getEditora());
+				autorBuscados.add("Ano: " + x.getAno());
+				autorBuscados.add("Assunto: " + x.getAssunto());				
+				autorBuscados.add("Codigo: " + x.getCodigo()+ "\n\n");				
+			});
+
+		return autorBuscados;
+	}
+
+/*
+
+	public Livro buscaLivroTitulo(String title)
+	{
 		Optional<Livro> optional = this.todosLivros
 			.stream()
 			.filter( x -> x.getTitulo().equals(title))
@@ -563,13 +616,13 @@ public class Sistema
 		Livro l = optional.get();
 		return l;
 	}
-
-	public Livro buscaLivroAutor(String author){
+	public Livro buscaLivroAutor(String author)
+	{
 		Optional<Livro> optional = this.todosLivros
 			.stream()
 			.filter( x -> x.getAutor().equals(author))
 			.findAny();
 		Livro l = optional.get();
 		return l;
-	}
+	}*/
 }
