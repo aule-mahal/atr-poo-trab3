@@ -21,10 +21,10 @@ import javafx.event.*;
 /*
 	TODO:
 
-		##>>>> ALTERAR SEPARADORES DE TODOS OS ARQUIVOS PARA VIRGULA <<<<##
+		##>>>> ALTERAR SEPARADORES DE TODOS OS ARQUIVOS PARA VIRGULA <<<<## -- OK OK
 
 		LISTAR USUARIO, LIVRO, EMPRESTIMOS -- OK
-		---->> Arrumar formatação da listagem de livros
+		---->> Arrumar formatação da listagem de livros -- OK
 	
 
 		CADASTROS
@@ -49,11 +49,30 @@ import javafx.event.*;
 		--->> Deletar Livro
 
 		OPCOES
-		-->> Criar Aba
+		-->> Criar Aba -- OK
 		---->> Alterar Data
 
 
-		TROCAR PRINTLNs POR DIALOG BOX
+		TROCAR PRINTLNs POR DIALOG BOX -- OK
+*/
+
+/*
+	CHANGELOG:
+
+	Duplicação de Caixas de Dialogo Consertado
+
+	Caixas de Dialogo mostram mensagens corretas
+
+	Alteracao de data esta ok -- tentei fazer um parse na string de entrada
+	para caso o usuario colocasse apenas o dia/mes/ano e nao a hora mas nao consgui, o usuario precisa
+	entrar com todas as informacoes no formato exato como esta escrito no textfield "DD/MM/YYYY HH:MM:SS", espaco incluso
+	
+	Quando a data eh alterada manualmente, a flag checkHist se torna true e trava os botoes de Cadastro, Emprestimo e Retorno
+	quando esses botoes sao usados no modo "Historico", eles criam um warning box
+	
+	A flag eh alterada para false, destravando o sistema quando o usuario restaura o tempo do sistema
+	para a hora atual na aba de opções
+
 */
 
 public class TelaBiblioteca extends Application
@@ -61,11 +80,12 @@ public class TelaBiblioteca extends Application
 	private TabPane painelAbas = new TabPane();
 	private HBox box  = new HBox();
 	private Tab abaCadastro = new Tab("Cadastrar");
-	private Tab abaBuscar =   new Tab("   Buscar  ");
-	private Tab abaEmpreDevo =  new Tab("Empréstimo/Devolução");
-	private Tab abaListar =   new Tab("   Listar   ");
-	private Tab abaOpcoes = new Tab("Opcoes"); //Criar pagian
+	private Tab abaBuscar = new Tab("   Buscar  ");
+	private Tab abaEmpreDevo = new Tab("Empréstimo/Devolução");
+	private Tab abaListar =  new Tab("   Listar   ");
+	private Tab abaOpcoes = new Tab("Opções");
 	private ChoiceBox escolhaTipoUsuario;
+	private Boolean checkHist = false; //Flag para "viagem no tempo", se true, nao cadastra, empresta ou devolve
 
 	public static void main(String[] args)
 	{
@@ -78,41 +98,37 @@ public class TelaBiblioteca extends Application
 		System.out.println("NOW " + now.getTime());
 		Sistema sist = new Sistema(now.getTime());
 
-
-
 		sist.carregaArquivoUsuarios();
+		
 		sist.carregaArquivoLivros();
+
 		sist.carregaEmprestados();
+
+		sist.carregaEmprestimosInativos();
+
 		sist.atualizaSistema();
+			
+		//TESTE DO carregaEMprestimosInativos
+		List<Emprestimo> inat;
+		inat = sist.listarEmrestimosInativos();
+		inat.stream()
+			.forEach(x -> System.out.println("CL: "+x.getCodigoDoLivro()+" |CU: "+x.getCodigoDoUsuario()+" |DE: "+
+				x.getDataEmprestimo().getTime().toString()+" |DD: "+x.getDataDevolucao().getTime().toString()));
 
 		configuraAbaCadastrar(sist);
 		configuraAbaBuscar(sist);
 		configuraAbaListar(sist);
 		configuraAbaEmpreDevo(sist);
-		painelAbas.getTabs().addAll(abaCadastro, abaEmpreDevo, abaBuscar, abaListar);
+		configuraAbaOpcoes(sist);
+
+		painelAbas.getTabs().addAll(abaCadastro, abaEmpreDevo, abaBuscar, abaListar, abaOpcoes);
 		stage.setScene(new Scene(painelAbas));
 
-		/*final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() 
-		{  
-     		public void handle(ActionEvent event) 
-     		{  
-	          	final GregorianCalendar cal = new GregorianCalendar();  
-	          	clock.setText(cal.getTime().toString());
-	          	System.out.println(cal.getTime().toString());
-	          	stage.setTitle("DEDALUS 2.0  -  Hora do Sistema: <" + cal.getTime().toString()+">");
-	          	stage.setWidth(650);
-				stage.setHeight(550);
-	          	stage.show();
-    	 	}  
-		}));  */
-
-		//GregorianCalendar tempo;
 		final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), 
 			(event) ->  
      		{  
 
 	          	final GregorianCalendar cal = new GregorianCalendar();
-	          	//sist.setDataDoSistema(cal.getTime());
 	          	stage.setTitle("DEDALUS 2.0   [" + cal.getTime().toString()+"]");
 	          	stage.setWidth(650);
 				stage.setHeight(550);
@@ -130,7 +146,6 @@ public class TelaBiblioteca extends Application
 
 	private void configuraAbaCadastrar(Sistema sist)
 	{
-
 		HBox linha1 = new HBox();
 		linha1.setSpacing(10);
 		VBox v = new VBox();
@@ -174,78 +189,83 @@ public class TelaBiblioteca extends Application
 
 		Button btnErro = new Button("Mostrar diálogo de error");
 
+		
+
 		btCadastrarUsuario.setOnAction( (event) ->
 		{
-			/*Escrever aqui codigo correspondente e apagar o print
-				Dica: pegar as strings dos text fields (ache na net o metodo, deve ser algum getText)
-				e chamar o construtor do usuario, 
-				depois inserir no sistema
-				nao esqueça de resetar os text fields depois
-			*/
+			Alert dialogoOk;
+			
+
 			//Verifica se todos os campos foram preenchidos
-			if(putNome.getText().contentEquals("") || putEnd.getText().contentEquals("") || putCode.getText().contentEquals("")){
-				System.out.println("CAMPO VAZIO");
-				//Trocar por alert box
+			if(checkHist){
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Verificação do histórico:\nAlterações não são permitidas.");
 			}
-			else{
-				Alert dialogoOk;
-				if(rbAluno.isSelected()){
-					
-					try{
+			else if(putNome.getText().contentEquals("") || putEnd.getText().contentEquals("") || putCode.getText().contentEquals(""))
+			{
+				System.out.println("CAMPO VAZIO");
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Há campo(s) vazio(s)!");
+				dialogoOk.setTitle("Info");
+				dialogoOk.setHeaderText("Atenção!");
+			}
+			else
+			{
+				if(rbAluno.isSelected())
+				{
+					try
+					{
 						sist.addUsuario(new Aluno(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
 						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
 						dialogoOk.setContentText("Aluno cadastrado com sucesso!");
-										
-
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
 					}
-					catch(Exception ex){
-						//TROCAR POR ALERT BOX
+					catch(Exception ex)
+					{
 						dialogoOk = new Alert(Alert.AlertType.ERROR);
-						dialogoOk.setContentText("Aluno já existente!");
-						System.out.println("Erro: " + ex.getMessage());
+						dialogoOk.setContentText(ex.getMessage());
 					}
-					dialogoOk.showAndWait();
 				}
-				else if(rbProfessor.isSelected()){
-					try{
+				else if(rbProfessor.isSelected())
+				{
+					try
+					{
 						sist.addUsuario(new Professor(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
 						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
 						dialogoOk.setContentText("Professor cadastrado com sucesso!");
 					}
-					catch(Exception ex){
+					catch(Exception ex)
+					{
 						
 						dialogoOk = new Alert(Alert.AlertType.ERROR);
-						dialogoOk.setContentText("Professor já existente!");
-						System.out.println("Erro: " + ex.getMessage());
+						dialogoOk.setContentText(ex.getMessage());
 					}
-					dialogoOk.showAndWait();
 				}
-				else if(rbComunidade.isSelected()){
-					try{
+				else
+				{
+					try
+					{
 						sist.addUsuario(new Comunidade(putNome.getText(), putEnd.getText(), putCode.getText()));
 						sist.salvaArquivoUsuarios();
 						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
 						dialogoOk.setContentText("Pessoa da Comunidade cadastrada com sucesso!");
 					}
-					catch(Exception ex){
+					catch(Exception ex)
+					{
 						//TROCAR POR ALERT BOX
 						dialogoOk = new Alert(Alert.AlertType.ERROR);
-						dialogoOk.setContentText("Pessoa da Comunidade já existente!");
-						System.out.println("Erro: " + ex.getMessage());
+						dialogoOk.setContentText(ex.getMessage());
 					}
-					dialogoOk.showAndWait();
 				}
+				
 			}
+			dialogoOk.showAndWait();
 			putNome.clear();
 			putCode.clear();
 			putEnd.clear();
-
 			System.out.println("Cadastrar usuario!!");
-		}
-		);
+		});
 
 		v.getChildren().addAll(linha1, linha2, linha3, linha4);
 
@@ -316,43 +336,68 @@ public class TelaBiblioteca extends Application
 
 		btCadastrarLivro.setOnAction( (event) ->
 		{
-			/*Escrever aqui codigo correspondente e apagar o print
-				Dica: pegar as strings dos text fields (ache na net, deve ser algum getText)
-				e chamar o construtor do livro, 
-				depois inserir no sistema
-			*/
-			if(putTitulo.getText().contentEquals("") || putAutor.getText().contentEquals("") || putAssunto.getText().contentEquals("") ||
-				putAno.getText().contentEquals("") || putCodeLivro.getText().contentEquals("") || putEditora.getText().contentEquals("")){
+			Alert dialogoOk;
+			if(checkHist){
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Verificação do histórico:\nAlterações não são permitidas.");
+			}
+			else if(putTitulo.getText().contentEquals("") || putAutor.getText().contentEquals("") || putAssunto.getText().contentEquals("") ||
+				putAno.getText().contentEquals("") || putCodeLivro.getText().contentEquals("") || putEditora.getText().contentEquals(""))
+			{
 				System.out.println("CAMPO VAZIO");
-				//Trocar por alert box
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Há campo(s) vazio(s)!");
+				dialogoOk.setTitle("Info");
+				dialogoOk.setHeaderText("Atenção!");
 			}
-			else{
-				//public Livro(String codigo, String titulo, String autor, String editora, int ano, String assunto)
-				if(rbTexto.isSelected()){
-					try{
+			else
+			{
+				if(rbTexto.isSelected())
+				{
+					try
+					{
 						sist.addLivro(new LivroTexto(putCodeLivro.getText(), putTitulo.getText(), putAutor.getText(),
-									putEditora.getText(), Integer.parseInt(putAno.getText()), putAssunto.getText()));
+						putEditora.getText(), Integer.parseInt(putAno.getText()), putAssunto.getText()));
 						sist.salvaArquivoLivros();
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk.setContentText("Livro texto cadastrado com sucesso!");
 					}
-					catch(Exception ex){
-						//TROCAR POR ALERT BOX
+					catch(NumberFormatException ex)
+					{
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText("Campo com valor invalido\n" + ex.getMessage());
+					}
+					catch(Exception ex)
+					{
 						System.out.println("Erro: " + ex.getMessage());
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText(ex.getMessage());
 					}
 				}
-				else if(rbGeral.isSelected()){
-					try{
+				else
+				{
+					try
+					{
 						sist.addLivro(new LivroGeral(putCodeLivro.getText(), putTitulo.getText(), putAutor.getText(),
-									putEditora.getText(), Integer.parseInt(putAno.getText()), putAssunto.getText()));
+						putEditora.getText(), Integer.parseInt(putAno.getText()), putAssunto.getText()));
 						sist.salvaArquivoLivros();
-						//Alert pop-up -> mensagem (Cadastro efetuado com sucesso)
+						dialogoOk = new Alert(Alert.AlertType.INFORMATION);
+						dialogoOk.setContentText("Livro geral cadastrado com sucesso!");
 					}
-					catch(Exception ex){
-						//TROCAR POR ALERT BOX
+					catch(NumberFormatException ex)
+					{
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText("Campo com valor invalido\n" + ex.getMessage());
+					}
+					catch(Exception ex)
+					{	
 						System.out.println("Erro: " + ex.getMessage());
+						dialogoOk = new Alert(Alert.AlertType.ERROR);
+						dialogoOk.setContentText(ex.getMessage());
 					}
 				}
 			}
+			dialogoOk.showAndWait();
 			putAutor.clear();
 			putTitulo.clear();
 			putEditora.clear();
@@ -360,9 +405,7 @@ public class TelaBiblioteca extends Application
 			putAssunto.clear();
 			putAno.clear();
 			System.out.println("Cadastrar livro!!");
-		}
-		);
-
+		});
 	}
 
 	private void configuraAbaBuscar(Sistema sist)
@@ -503,7 +546,7 @@ public class TelaBiblioteca extends Application
 		abaBuscar.setClosable(false);
 	}
 
-	private synchronized void configuraAbaListar(Sistema sist)
+	private synchronized void configuraAbaListar(Sistema sist) // <<<===================  ver isso
 	{
 		ToggleGroup groupListar = new ToggleGroup();
 		RadioButton rbListarUser = new RadioButton("Listar usuários");
@@ -549,7 +592,7 @@ public class TelaBiblioteca extends Application
 				lliv = sist.listarLivros();
 				lliv.stream()
 					.forEach(x ->{
-						texto.appendText(" "  +x);
+						texto.appendText(" "  + x);
 					});
 			}
 			else if (rbListarEmprest.isSelected()) //testa se selecionou book pra listar
@@ -559,11 +602,9 @@ public class TelaBiblioteca extends Application
 				llemp = sist.listarEmprestimos();
 				llemp.stream()
 					.forEach(x ->{
-						texto.appendText(" "+x);
+						texto.appendText(" " + x );
 					});
 			}
-			
-			
 		});
 
 		
@@ -605,19 +646,21 @@ public class TelaBiblioteca extends Application
 		
 		btEmprestar.setOnAction((event) -> 
 		{	
-			
-			if(putCodeBook.getText().contentEquals("") || putCodeUser.getText().contentEquals("")){
-				System.out.println("CAMPO VAZIO");
+			Alert dialogoOk;
+			if(checkHist){
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Verificação do histórico:\nAlterações não são permitidas.");
+			}
+			else if(putCodeBook.getText().contentEquals("") || putCodeUser.getText().contentEquals("")){
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Insira o código do usuário e do livro!");
 			}
 			else{
 
-				Alert dialogoOk;
+				
 				try{
-//<<<<<<< HEAD
 					System.out.println("DATA SISTEMA EMPRESTA "+sist.getData().getTime().toString());
-//=======
 
-//>>>>>>> Janelas
 					sist.realizarEmprestimo(putCodeUser.getText(), putCodeBook.getText(), sist.getData());
 					sist.salvaArquivoEmprestimos();
 					sist.atualizaSistema();
@@ -628,13 +671,13 @@ public class TelaBiblioteca extends Application
 				catch(Exception ex){
 
 					dialogoOk = new Alert(Alert.AlertType.ERROR);
-					dialogoOk.setContentText("Livro já emprestado!");					
+					dialogoOk.setContentText("ERRO: " + ex.getMessage());					
 					System.out.println("ERRO: " + ex.getMessage());
 				}
 
-				dialogoOk.showAndWait();
+				
 			}
-
+			dialogoOk.showAndWait();
 			putCodeBook.clear();
 			putCodeUser.clear();
 		});
@@ -655,32 +698,41 @@ public class TelaBiblioteca extends Application
 
 		btDevolver.setOnAction((event) -> 
 		{
-			if(putCodeBookDevolv.getText().contentEquals("")){
-				System.out.println("CAMPO VAZIO");
+			Alert dialogoOk;
+			
+			if(checkHist){
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Verificação do histórico:\nAlterações não são permitidas.");
+			}
+			else if(putCodeBookDevolv.getText().contentEquals(""))
+			{
+				dialogoOk = new Alert(Alert.AlertType.WARNING);
+				dialogoOk.setContentText("Insira o código do livro!");
 			}
 			else{
 
-				Alert dialogoOk;
+				
 				try{
-					sist.registrarDevolucao(putCodeBookDevolv.getText());
+					sist.registrarDevolucao(putCodeBookDevolv.getText(), sist.getData());
+
 					sist.atualizaSistema();
 					sist.salvaArquivoEmprestimos();
+					sist.salvaArquivoEmprestimosInativos();
 					sist.salvaArquivoUsuarios();
 					sist.salvaArquivoLivros();
+
 					dialogoOk = new Alert(Alert.AlertType.INFORMATION);
 					dialogoOk.setContentText("Livro devolvido com sucesso!");
 					
 				}
 				catch(Exception ex){
-					
 					dialogoOk = new Alert(Alert.AlertType.WARNING);
 					dialogoOk.setContentText("Esse livro não existe ou não foi emprestado!");
-					dialogoOk.showAndWait();
 					System.out.println("Erro: "+ex.getMessage());
 				}
-				dialogoOk.showAndWait();
+				
 			}
-
+			dialogoOk.showAndWait();
 			putCodeBookDevolv.clear();
 			System.out.println("Devolver livro");
 		});
@@ -693,6 +745,84 @@ public class TelaBiblioteca extends Application
 		abaEmpreDevo.setContent(vertical);
 		abaEmpreDevo.setClosable(false);
 	}
+
+	private void configuraAbaOpcoes(Sistema sist)
+	{
+		Label titulo = new Label("\n\t\t====== Alterar data do sistema ======\n\n");
+		Label usarDataAtual = new Label("\t\tOu use data e hora atuais:\n");
+		Label alterarData = new Label("\t\tInserir data:\n");
+		TextField inputData = new TextField("DD/MM/AAAA HH:MM:SS");
+		inputData.setMinWidth(180);
+		Button btSetadata = new Button("Alterar data");
+		Button btSetaDataAtual = new Button("Alterar para data e hora atuais");
+		HBox linha0 = new HBox();
+		linha0.getChildren().add(titulo);
+		
+		HBox linha1 = new HBox();
+		linha1.getChildren().add(alterarData);
+
+		HBox linha2 = new HBox();
+		linha2.setSpacing(20);
+		linha2.getChildren().addAll(new Label("\t   "), inputData, btSetadata);
+		HBox linha3 = new HBox();
+		linha3.setSpacing(20);
+		linha3.getChildren().addAll(usarDataAtual);
+		HBox linha4 = new HBox();
+		linha4.setSpacing(20);
+		linha4.getChildren().addAll(new Label("\t   "), btSetaDataAtual);
+		VBox principal = new VBox();
+		principal.setSpacing(8);
+		principal.getChildren().addAll(linha0, linha1, linha2, linha3, linha4);
+		abaOpcoes.setClosable(false);
+		abaOpcoes.setContent(principal);
+
+		btSetadata.setOnAction((event) -> 
+		{
+			Alert dialogoSetData;
+			if(inputData.getText().contentEquals("DD/MM/AAAA HH:MM:SS")){
+
+				dialogoSetData = new Alert(Alert.AlertType.WARNING);
+				dialogoSetData.setContentText("Insira a nova data!");
+
+			}
+			else{
+
+				//Parse String
+				String raw = inputData.getText();
+				String[] sep = raw.split(" ");
+				String[] newDate = sep[0].split("/");
+				String[] newHour = sep[1].split(":");
+				
+				
+				GregorianCalendar newCal = new GregorianCalendar(Integer.parseInt(newDate[2]), Integer.parseInt(newDate[1]), Integer.parseInt(newDate[0]), 
+												Integer.parseInt(newHour[0]), Integer.parseInt(newHour[1]), Integer.parseInt(newHour[0]));
+				
+				sist.setDataDoSistema(newCal.getTime());
+
+				dialogoSetData = new Alert(Alert.AlertType.INFORMATION);
+				dialogoSetData.setContentText("Data do sistema atualizada para: \n"+sist.getData().getTime().toString());
+				this.checkHist = true;
+			}
+			dialogoSetData.showAndWait();
+			inputData.setText("DD/MM/AAAA HH:MM:SS");
+			
+		});
+
+		btSetaDataAtual.setOnAction((event) -> 
+		{
+			
+			GregorianCalendar osTime = new GregorianCalendar();
+			sist.setDataDoSistema(osTime.getTime());
+			this.checkHist = false;
+
+			Alert dialogoSetData = new Alert(Alert.AlertType.INFORMATION);
+			dialogoSetData.setContentText("Data do sistema atualizada.");
+			dialogoSetData.showAndWait();
+		});
+
+
+	}
+
 
 }
 

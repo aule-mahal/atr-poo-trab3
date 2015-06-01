@@ -17,7 +17,7 @@ public abstract class Usuario
 
 	protected GregorianCalendar getDataDevolucao(GregorianCalendar hoje) //retorna data de devolucao de livro emprestado HOJE
 	{
-		System.out.println("HOJE: "+hoje.getTime().toString());
+		System.out.println("++HOJE: "+hoje.getTime().toString());
 		GregorianCalendar devolucao = new GregorianCalendar();
 		devolucao.setTime(hoje.getTime());	
 		//System.out.println("DIAS DE EMPRESTIMO "+this.diasDeEmprestimo);

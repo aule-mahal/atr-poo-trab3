@@ -90,6 +90,10 @@ public class Sistema
 
 	}
 
+	public List<Emprestimo> listarEmrestimosInativos(){
+		return this.emprestimosInativos;
+	}
+
 	public List<String> listarUsuarios()
 	{
 		List<String> lusu = new ArrayList<String>();
@@ -98,8 +102,8 @@ public class Sistema
 			.forEach(x->
 			{	
 
-				lusu.add("Nome: " + x.getNome());
-				lusu.add("Endereco: " + x.getEndereco());
+				lusu.add("Nome: " + x.getNome() + "\n");
+				lusu.add("Endereco: " + x.getEndereco()+ "\n");
 				lusu.add("Codigo: " + x.getCodigo() + "\n\n");
 
 			});
@@ -136,11 +140,11 @@ public class Sistema
 			.stream()
 			.forEach(x->
 			{
-				lliv.add("Titulo : " + x.getTitulo());
-				lliv.add("Autor : " + x.getAutor());
-				lliv.add("Editora : " + x.getEditora());
-				lliv.add("Ano: " + x.getAno());
-				lliv.add("Assunto: " + x.getAssunto());				
+				lliv.add("Titulo: " + x.getTitulo() + "\n");
+				lliv.add("Autor: " + x.getAutor() +"\n");
+				lliv.add("Editora: " + x.getEditora()+"\n");
+				lliv.add("Ano: " + x.getAno() +"\n");
+				lliv.add("Assunto: " + x.getAssunto()+"\n");				
 				lliv.add("Codigo: " + x.getCodigo()+ "\n\n");				
 			});
 			
@@ -205,24 +209,34 @@ public class Sistema
 	public List<String> listarEmprestimos()
 	{
 		List<String> lemp = new ArrayList<String>();
+		this.emprestimosInativos
+			.stream()
+			.forEach(x->
+			{
+				if(x.getDataDevolucao().getTime().after(this.dataAtual.getTime()))
+				{
+					lemp.add("Usuário: " + x.getNomeUsuario() + "\n");
+					lemp.add("Codigo Usuario: "+ x.getCodigoDoUsuario() + "\n");
+					lemp.add("Livro: " + x.getNomeLivro() + "\n");
+					lemp.add("Codigo Livro: "+ x.getCodigoDoLivro() + "\n");
+					lemp.add("Devolver em: " + x.getDataDevolucao().getTime().toString() + "\n\n");
+				}
+			});
+
 		this.emprestimosAtivos
 			.stream()
 			.forEach(x->
 			{
-				lemp.add("Usuário: " + x.getNomeUsuario() + " ");
-				lemp.add("Codigo Usuario: "+ x.getCodigoDoUsuario());
-				lemp.add("\n" + "Livro: " + x.getNomeLivro() + " ");
-				lemp.add("Codigo Livro: "+ x.getCodigoDoLivro());
-				lemp.add("\n"+"Devolver em: " + x.getDataDevolucao().getTime().toString() + "\n\n");
+				lemp.add("Usuário: " + x.getNomeUsuario() + "\n");
+				lemp.add("Codigo Usuario: "+ x.getCodigoDoUsuario() + "\n");
+				lemp.add("Livro: " + x.getNomeLivro() + "\n");
+				lemp.add("Codigo Livro: "+ x.getCodigoDoLivro() + "\n");
+				lemp.add("Devolver em: " + x.getDataDevolucao().getTime().toString() + "\n\n");
 			});
-			return lemp;
+		return lemp;
 	}
 
-	public List<Emprestimo> getEmrestimosInativos(){
-		return this.emprestimosInativos;
-	}
-
-	public void registrarDevolucao(String codigoLivro) throws NoSuchElementException
+	public void registrarDevolucao(String codigoLivro, GregorianCalendar dataAtual) throws NoSuchElementException
 	{
 		Optional<Emprestimo> opt = this.emprestimosAtivos
 			.stream()
@@ -230,8 +244,11 @@ public class Sistema
 			.findAny();
 
 		Emprestimo emprest = opt.get(); //pode lancar excecao
-		this.emprestimosInativos.add(emprest);
+		//this.emprestimosInativos.add(emprest);
+		System.out.println("DATA ATUAL:: "+dataAtual.getTime().toString());
 		this.removeEmprestimo(emprest);
+		emprest.setDataDevolucao(dataAtual);
+		this.emprestimosInativos.add(emprest);
 
 		/*
 		Devolucao devolv = new Devolucao(emprest.getCodigoDoLivro(), emprest.getCodigoDoUsuario(), this.dataAtual);
@@ -318,7 +335,7 @@ public class Sistema
 		String arquivocsv = "Arquivos/Dados_usuarios.csv";
 		BufferedReader br = null;
 		String linha = "";
-		String separatorcsv = ",";
+		String separatorcsv = ";";
  
 		try
 		{ 
@@ -366,7 +383,7 @@ public class Sistema
 		String arquivocsv = "Arquivos/Dados_livros.csv";
 		BufferedReader br = null;
 		String linha = "";
-		String separatorcsv = "ᶲ";
+		String separatorcsv = ";";
  	
  		try
 		{ 
@@ -410,7 +427,7 @@ public class Sistema
 		String arquivocsv = "Arquivos/Dados_livros_emprestados.csv";
 		BufferedReader br = null;
 		String linha = "";
-		String separatorcsv = ",";
+		String separatorcsv = ";";
  
 		try
 		{ 
@@ -456,7 +473,7 @@ public class Sistema
 		String arquivocsv = "Arquivos/Dados_livros_emprestados_inativos.csv";
 		BufferedReader br = null;
 		String linha = "";
-		String separatorcsv = ",";
+		String separatorcsv = ";";
  
 		try
 		{ 
@@ -464,8 +481,11 @@ public class Sistema
 			while ((linha = br.readLine()) != null)
 			{	
 
-        		String[] dadosLeitura = linha.split(separatorcsv); // use comma as separator
-        		/*
+        		String[] dadosLeitura = linha.split(separatorcsv); 
+
+        		//System.out.println("DADOS LEITURA: "+dadosLeitura[2]+" "+dadosLeitura[3]+" "+dadosLeitura[4]+"\n"+dadosLeitura[5]+" "+dadosLeitura[6]+" "+dadosLeitura[7]);
+        		// use comma as separator
+        		/* Protipo para referencia
 					public void addEmprestimoInativo(String codigoUsuario, String codigoLivro, GregorianCalendar dataEmprestimo
 		GregorianCalendar dataDevolucao, Boolean atraso){
         		*/
@@ -480,14 +500,17 @@ public class Sistema
 					atr = false;
 				}
 
-        		this.addEmprestimoInativo(dadosLeitura[0], dadosLeitura[1],new GregorianCalendar(
-        			Integer.parseInt(dadosLeitura[2]),
-        			Integer.parseInt(dadosLeitura[3]),
-        			Integer.parseInt(dadosLeitura[4])),
+
+				//DATAS ESTAO IGUAIS! ???
+        		this.addEmprestimoInativo(dadosLeitura[0], dadosLeitura[1],
         			new GregorianCalendar(
-        			Integer.parseInt(dadosLeitura[5]),
+        			Integer.parseInt(dadosLeitura[4]),
+        			Integer.parseInt(dadosLeitura[3]),
+        			Integer.parseInt(dadosLeitura[2])),
+        			new GregorianCalendar(
+        			Integer.parseInt(dadosLeitura[7]),
         			Integer.parseInt(dadosLeitura[6]),
-        			Integer.parseInt(dadosLeitura[7])),
+        			Integer.parseInt(dadosLeitura[5])),
         			atr);
 
         		/*
@@ -524,7 +547,7 @@ public class Sistema
 	public void salvaArquivoEmprestimos()
   	{
   		String arquivocsv = "Arquivos/Dados_livros_emprestados.csv";
-  		String s = ",";
+  		String s = ";";
   		File f = new File(arquivocsv);
   	 	try{
   	 		OutputStream os = new FileOutputStream(f);
@@ -556,7 +579,7 @@ public class Sistema
   	public void salvaArquivoEmprestimosInativos()
   	{
   		String arquivocsv = "Arquivos/Dados_livros_emprestados_inativos.csv";
-  		String s = ",";
+  		String s = ";";
   		File f = new File(arquivocsv);
   	 	try{
   	 		OutputStream os = new FileOutputStream(f);
@@ -600,7 +623,7 @@ public class Sistema
 	public void salvaArquivoUsuarios()
   	{
   		String arquivocsv = "Arquivos/Dados_usuarios.csv";
-  		String sep = ",";
+  		String sep = ";";
   		File f = new File(arquivocsv);
   	 	try{
   	 		OutputStream os = new FileOutputStream(f);
@@ -610,17 +633,17 @@ public class Sistema
   	 			Usuario us = (Usuario)usuit.next();
   	 			
   	 			if(us instanceof Aluno){
-  	 				String content = new String("aluno"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
+  	 				String content = new String("aluno"+";"+us.getNome()+";"+us.getEndereco()+";"+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}
   	 			else if(us instanceof Professor){
-  	 				String content = new String("professor"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
+  	 				String content = new String("professor"+";"+us.getNome()+";"+us.getEndereco()+";"+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}
   	 			else if (us instanceof Comunidade){
-  	 				String content = new String("comunidade"+","+us.getNome()+","+us.getEndereco()+","+us.getCodigo()+"\n");
+  	 				String content = new String("comunidade"+";"+us.getNome()+";"+us.getEndereco()+";"+us.getCodigo()+"\n");
   	 				byte[] bud = content.getBytes();
   	 				os.write(bud);
   	 			}
@@ -637,7 +660,7 @@ public class Sistema
   	public void salvaArquivoLivros()
   	{
   		String arquivocsv = "Arquivos/Dados_livros.csv";
-  		String s = "ᶲ";
+  		String s = ";";
   		File f = new File(arquivocsv);
   	 	try{
   	 		OutputStream os = new FileOutputStream(f);
@@ -717,4 +740,15 @@ public class Sistema
 		Livro l = optional.get();
 		return l;
 	}
+
+/*
+	public Emprestimo buscaEmprestimo(String codigoDoLivro){
+		Optional<Emprestimo> optional = this.emprestimosAtivos
+			.stream()
+			.filter( x -> x.getCodigoDoLivro().equals(codigoDoLivro))
+			.findAny();
+		Emprestimo emp = optional.get();
+		return emp;
+	}
+	*/
 }

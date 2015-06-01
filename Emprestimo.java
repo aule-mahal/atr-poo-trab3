@@ -24,7 +24,7 @@ public class Emprestimo
 	//Sets:
 	public void setAtrasado(GregorianCalendar hoje) //verfica se emprestimo esta atrasado, setando como true o atributo
 	{
-		if(hoje.getTime().after(dataDevolucao.getTime())) //se HOJE está depois da data de devolucao, quer dizer que está atrasado
+		if(hoje.getTime().after(this.dataDevolucao.getTime())) //se HOJE está depois da data de devolucao, quer dizer que está atrasado
 		{
 			this.atrasado = true;
 		}
